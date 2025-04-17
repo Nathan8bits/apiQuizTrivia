@@ -3,10 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./quiz.js"></script>
+    <link rel="stylesheet" href="./quiz.css">
+    <script src="./quiz.js" defer></script>
     <title>Document</title>
 </head>
+
 <body>
-    <h2>Quiz</h2>
-</body>
+    <form id="formularioPergunta">
+        <h2 id="categoria">Matemática</h2>
+        <p id="pergunta">Qual é o resultado de 3 x 4?</p>
+  
+        <ol class="opcoes">
+            <li class="opcao"> <span>opcao 1</span></li>
+            <li class="opcao"> <span>opcao 2</span></li>
+            <li class="opcao"> <span>opcao 3</span></li>
+            <li class="opcao"> <span>opcao 4</span></li> 
+        </ol>
+        
+        <button id="btnVerificar" type="button">Verificar</button>
+        <span id="feedback" style="color: red; display: none;">Resposta incorreta. Tente novamente!</span>
+  
+    </form>
+    
 </html>
