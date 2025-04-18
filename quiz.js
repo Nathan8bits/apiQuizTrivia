@@ -2,6 +2,7 @@ let listQuestao;
 let indexQuestao = 0;
 let questoesCorretas = 0;
 let opcaoSelecionada = undefined;
+let tokenData;
 
 let respostasCorretasHtml = document.querySelector("#respostasCorretas");
 let respostasTotaisHtml = document.querySelector("#respostasTotais");
@@ -82,14 +83,20 @@ function recuperandoDadosLocal() {
   return opcoesQuiz;
 }
 
+async function gerarToken() {
+  const APITokenComando = `https://tryvia.ptr.red/api_token.php?command=request`;
+  tokenData = await fetch(APITokenComando)
+                              .then((responseToken) => responseToken.json())
+                              .then((jsonBodyToken) => jsonBodyToken.token);
+
+}
+
 async function carregarQuestao(op) {
   console.log("-------------");
   console.log("carregarQuestao:")
 
-  const APITokenComando = `https://tryvia.ptr.red/api_token.php?command=request`;
-  const tokenData = await fetch(APITokenComando)
-                              .then((responseToken) => responseToken.json())
-                              .then((jsonBodyToken) => jsonBodyToken.token);
+  
+
 
   const APIUrl = `https://tryvia.ptr.red/api.php?amount=${op.quantidade}&category=${op.categoria}&type=${op.tipo}&difficulty=${op.dificuldade}&token=${tokenData}`;
 
@@ -144,7 +151,7 @@ function mostrarQuestao(){
 (async function main() {
   const op = recuperandoDadosLocal()
   //const op = {quantidade: 3, dificuldade: 'easy', tipo: 'multiple', categoria: '0'}
-  
+  await gerarToken();
   await carregarQuestao(op)
 })()
 
