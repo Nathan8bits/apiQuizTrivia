@@ -1,21 +1,37 @@
 let listQuestao;
 let indexQuestao = 0;
 let questoesCorretas = 0;
-let opcaoSelecionada;
+let opcaoSelecionada = undefined;
 
 let opcoesLista = document.querySelectorAll(".opcao");
 let btnVerificar = document.querySelector("#btnVerificar");
 
 btnVerificar.addEventListener("click", () => {
-  if (indexQuestao < listQuestao.length) {
-    console.log("opcao selecionada: ", opcaoSelecionada);
+  if (indexQuestao < listQuestao.length && opcaoSelecionada != undefined) {
     verificarquestao(opcaoSelecionada);
-    indexQuestao++
-    mostrarQuestao();
-  } else if (opcaoSelecionada != undefined) {
-
+    setTimeout(() => {
+      mostrarQuestao();
+    }, 1000);
+  } else if (opcaoSelecionada == undefined) {
+    console.log("selecione uma opcao")
   }
 })
+
+function verificarquestao(resposta) {
+  let feedBack= document.querySelector("#feedback")
+  if(listQuestao[indexQuestao].correct_answer == resposta) {
+    questoesCorretas++;
+    console.log("respostas corretas: ", questoesCorretas);
+    feedBack.textContent = "resposta correta!";
+  } else {
+    feedBack.textContent = "resposta errada!";
+    feedBack.innerHTML += `<br><span>correta: ${listQuestao[indexQuestao].correct_answer}</span>`
+    console.log("resposta errada!");
+    console.log("certo: ", listQuestao[indexQuestao].correct_answer);
+  }
+
+  indexQuestao++;
+}
 
 //console.log(opcoesLista); // Verifica se os itens li estão sendo selecionados
 
@@ -35,18 +51,6 @@ opcoesLista.forEach((item, index) => {
   });
 });
 
-function verificarquestao(resposta) {
-  //correct_answer
-  if(listQuestao[indexQuestao].correct_answer == resposta) {
-    questoesCorretas++;
-    console.log("resposta correta!");
-    return true;
-  } else {
-    console.log("resposta errada!");
-    console.log("certo: ", listQuestao[indexQuestao].correct_answer);
-    return false;
-  }
-}
 
 function recuperandoDadosLocal() {
     const opcoesQuiz = JSON.parse(localStorage.getItem("configQuiz"));
@@ -69,8 +73,6 @@ async function carregarQuestao(op) {
   const tokenData = await fetch(APITokenComando)
                               .then((responseToken) => responseToken.json())
                               .then((jsonBodyToken) => jsonBodyToken.token);
-  //const tokenData = await responseToken.json();
-  //const APIToken = tokenData.token;
 
   const APIUrl = `https://tryvia.ptr.red/api.php?amount=${op.quantidade}&category=${op.categoria}&type=${op.tipo}&difficulty=${op.dificuldade}&token=${tokenData}`;
 
@@ -79,27 +81,25 @@ async function carregarQuestao(op) {
   const urlData = await fetch(APIUrl)
                           .then((response) => response.json())
                           .then((jsonBody) => jsonBody.results);
-  //const urlData = await responseUrl.json();
-  listQuestao = urlData;
-  console.log("lista de questao: ", listQuestao)
-  mostrarQuestao();
-
-  /**
-   * fetch(url)
-        .then((response) => response.json())
-        .then((jsonBody) => jsonBody.results)
-        .then((pokemons) => pokemons.map(pokeApi.getPokemonDetail))  //pokemons.map(() => )
-        .then((detailRequests) => Promise.all(detailRequests)) //promise.all(todos as requisições são ser retornadas ao mesmo tempo, esperando que todas fiquem prontas)
-        .then((pokemonDetails) => pokemonDetails)
-   */
-
-  //console.log("Resposta da API:", urlData);
-
   
+  listQuestao = urlData;
+  if(listQuestao.length == 0) {
+    console.log("sem resultados");
+    window.location.href = "intro.html";
+    alert("Sem resultados")
+  }
+  console.log("lista de questao: ", listQuestao)
+  mostrarQuestao();  
 }
 
 function mostrarQuestao(){
+  opcaoSelecionada = undefined;
+  let itemSelected= document.querySelector('.selected')
+  if(itemSelected){
+    itemSelected.classList.remove("selected")
+  }
   if(indexQuestao < listQuestao.length) {
+    console.log(`index da questao: ${indexQuestao}`)
     let pergunta = document.querySelector("#pergunta");
     pergunta.textContent = listQuestao[indexQuestao].question;
 
@@ -108,7 +108,6 @@ function mostrarQuestao(){
     
     const textoLi = document.querySelectorAll(".opcao > span")
     textoLi.forEach((item, index) => {
-
       item.textContent = opcoes[index];
     });
 
@@ -117,7 +116,6 @@ function mostrarQuestao(){
     console.log("dificuldade:", listQuestao[indexQuestao].difficulty)
     console.log("Correta:", listQuestao[indexQuestao].correct_answer);
     console.log("opcoes:", listQuestao[indexQuestao].incorrect_answers);
-  
     //indexQuestao++;
   }
 }
