@@ -11,6 +11,11 @@
 <body>
     <form id="formularioPergunta">
         <h1>Quiz</h1>
+        <p id="placar">
+            <span id="respostasCorretas">0</span>
+            /
+            <span id="respostasTotais">10</span>
+        </p>
         <p id="categoria">Matemática</p>
         <p id="dificuldade">facil</p>
         <p id="pergunta">Qual é o resultado de 3 x 4?</p>
@@ -23,6 +28,7 @@
         </ol>
         
         <button id="btnVerificar" type="button">Verificar</button>
+        <button id="btnReiniciar" style=" display: none;">Reiniciar Quiz</button>
         <p id="feedback"></p>
   
     </form>

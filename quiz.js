@@ -3,17 +3,34 @@ let indexQuestao = 0;
 let questoesCorretas = 0;
 let opcaoSelecionada = undefined;
 
-let opcoesLista = document.querySelectorAll(".opcao");
+let respostasCorretasHtml = document.querySelector("#respostasCorretas");
+let respostasTotaisHtml = document.querySelector("#respostasTotais");
+let opcoesListaHtml = document.querySelectorAll(".opcao");
 let btnVerificar = document.querySelector("#btnVerificar");
+const btnReiniciar = document.querySelector("#btnReiniciar");
+
+btnReiniciar.addEventListener("click", () => {
+  indexQuestao = 0;
+  questoesCorretas = 0;
+  btnVerificar.disabled = false;
+  btnReiniciar.style.display = "none";  
+  carregarQuestao();
+})
 
 btnVerificar.addEventListener("click", () => {
+  console.log("clicou btnVerificar");
+  console.log(`${indexQuestao}, ${listQuestao.length}`);
   if (indexQuestao < listQuestao.length && opcaoSelecionada != undefined) {
     verificarquestao(opcaoSelecionada);
     setTimeout(() => {
       mostrarQuestao();
     }, 1000);
+  } else if (indexQuestao == listQuestao.length) {
+    btnVerificar.disabled = true;
+    btnReiniciar.disabled = false;
+    btnReiniciar.style.display = "block";
   } else if (opcaoSelecionada == undefined) {
-    console.log("selecione uma opcao")
+    console.log("selecione uma opcao");
   }
 })
 
@@ -35,7 +52,7 @@ function verificarquestao(resposta) {
 
 //console.log(opcoesLista); // Verifica se os itens li estão sendo selecionados
 
-opcoesLista.forEach((item, index) => {
+opcoesListaHtml.forEach((item, index) => {
   item.addEventListener("click", () => {
     if(document.querySelector('.selected') === null) {
       console.log('nao ha selected') ; 
@@ -93,12 +110,16 @@ async function carregarQuestao(op) {
 }
 
 function mostrarQuestao(){
-  opcaoSelecionada = undefined;
-  let itemSelected= document.querySelector('.selected')
-  if(itemSelected){
-    itemSelected.classList.remove("selected")
-  }
-  if(indexQuestao < listQuestao.length) {
+  opcaoSelecionada = undefined; 
+  if(indexQuestao == 0) {
+    console.log('qntdd questao: ', listQuestao.length);
+    respostasTotaisHtml.textContent = listQuestao.length; 
+  } else if(indexQuestao != 0){
+    document.querySelector('.selected').classList.remove("selected");
+  } 
+  
+  if(indexQuestao < listQuestao.length ) {
+    respostasCorretasHtml.textContent = questoesCorretas;
     console.log(`index da questao: ${indexQuestao}`)
     let pergunta = document.querySelector("#pergunta");
     pergunta.textContent = listQuestao[indexQuestao].question;
@@ -110,14 +131,14 @@ function mostrarQuestao(){
     textoLi.forEach((item, index) => {
       item.textContent = opcoes[index];
     });
-
+    
     console.log("pergunta: ", listQuestao[indexQuestao].question);
     console.log("categoria:", listQuestao[indexQuestao].category);
     console.log("dificuldade:", listQuestao[indexQuestao].difficulty)
     console.log("Correta:", listQuestao[indexQuestao].correct_answer);
     console.log("opcoes:", listQuestao[indexQuestao].incorrect_answers);
-    //indexQuestao++;
   }
+    //indexQuestao++;
 }
 
 (async function main() {
