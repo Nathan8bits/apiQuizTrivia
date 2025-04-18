@@ -12,7 +12,9 @@ btnVerificar.addEventListener("click", () => {
     verificarquestao(opcaoSelecionada);
     indexQuestao++
     mostrarQuestao();
-  }    
+  } else if (opcaoSelecionada != undefined) {
+
+  }
 })
 
 //console.log(opcoesLista); // Verifica se os itens li estão sendo selecionados
@@ -97,19 +99,16 @@ async function carregarQuestao(op) {
 }
 
 function mostrarQuestao(){
-
-  
   if(indexQuestao < listQuestao.length) {
     let pergunta = document.querySelector("#pergunta");
     pergunta.textContent = listQuestao[indexQuestao].question;
 
     let opcoes = listQuestao[indexQuestao].incorrect_answers;
-    opcoes[3] = listQuestao[indexQuestao].correct_answer
-
+    opcoes.splice(Math.floor(Math.random() * opcoes.length), 0, listQuestao[indexQuestao].correct_answer);
+    
     const textoLi = document.querySelectorAll(".opcao > span")
-    console.log("li: ", textoLi)
-
     textoLi.forEach((item, index) => {
+
       item.textContent = opcoes[index];
     });
 
@@ -117,7 +116,7 @@ function mostrarQuestao(){
     console.log("categoria:", listQuestao[indexQuestao].category);
     console.log("dificuldade:", listQuestao[indexQuestao].difficulty)
     console.log("Correta:", listQuestao[indexQuestao].correct_answer);
-    console.log("Erradas:", listQuestao[indexQuestao].incorrect_answers);
+    console.log("opcoes:", listQuestao[indexQuestao].incorrect_answers);
   
     //indexQuestao++;
   }

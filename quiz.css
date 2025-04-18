@@ -1,5 +1,6 @@
 :root {
     --selected: #4CAF50;
+    --verde-escuro: #008e0a;
     --cor-azulClaro: #4ea4eb;
     --cor-erro: red;
     --texto-principal: #333;
@@ -59,10 +60,16 @@ body {
     background-color: var(--selected);
   }
   
-  #feedback {
+  .respostaErrada {
     display: none;
     color: red;
     font-weight: bold;
     margin-left: 10px;
   }
   
+.respostaCorreta {
+    display: none;
+    color: var(--verde-escuro);
+    font-weight: bold;
+    margin-left: 10px;
+}
