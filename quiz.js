@@ -3,55 +3,37 @@ let indexQuestao = 0;
 let questoesCorretas = 0;
 let opcaoSelecionada = undefined;
 let tokenData;
+const op = recuperandoDadosLocal();
 
+let categoriaHtml = document.querySelector("#dificuldade");
 let respostasCorretasHtml = document.querySelector("#respostasCorretas");
 let respostasTotaisHtml = document.querySelector("#respostasTotais");
 let opcoesListaHtml = document.querySelectorAll(".opcao");
 let btnVerificar = document.querySelector("#btnVerificar");
 const btnReiniciar = document.querySelector("#btnReiniciar");
 
-btnReiniciar.addEventListener("click", () => {
-  indexQuestao = 0;
-  questoesCorretas = 0;
-  btnVerificar.disabled = false;
-  btnReiniciar.style.display = "none";  
-  carregarQuestao();
-})
+btnReiniciar.addEventListener("click", () => { reiniciar()});
 
 btnVerificar.addEventListener("click", () => {
   console.log("clicou btnVerificar");
   console.log(`${indexQuestao}, ${listQuestao.length}`);
   if (indexQuestao < listQuestao.length && opcaoSelecionada != undefined) {
     verificarquestao(opcaoSelecionada);
-    setTimeout(() => {
-      mostrarQuestao();
-    }, 1000);
-  } else if (indexQuestao == listQuestao.length) {
-    btnVerificar.disabled = true;
-    btnReiniciar.disabled = false;
-    btnReiniciar.style.display = "block";
+
+    if (indexQuestao == listQuestao.length) {
+      btnVerificar.disabled = true;
+      btnReiniciar.disabled = false;
+      btnReiniciar.style.display = "block";
+      //reiniciar();
+    } else {
+      setTimeout(() => {
+        mostrarQuestao();
+      }, 1000);
+    }
   } else if (opcaoSelecionada == undefined) {
     console.log("selecione uma opcao");
   }
 })
-
-function verificarquestao(resposta) {
-  let feedBack= document.querySelector("#feedback")
-  if(listQuestao[indexQuestao].correct_answer == resposta) {
-    questoesCorretas++;
-    console.log("respostas corretas: ", questoesCorretas);
-    feedBack.textContent = "resposta correta!";
-  } else {
-    feedBack.textContent = "resposta errada!";
-    feedBack.innerHTML += `<br><span>correta: ${listQuestao[indexQuestao].correct_answer}</span>`
-    console.log("resposta errada!");
-    console.log("certo: ", listQuestao[indexQuestao].correct_answer);
-  }
-
-  indexQuestao++;
-}
-
-//console.log(opcoesLista); // Verifica se os itens li estão sendo selecionados
 
 opcoesListaHtml.forEach((item, index) => {
   item.addEventListener("click", () => {
@@ -69,6 +51,30 @@ opcoesListaHtml.forEach((item, index) => {
   });
 });
 
+
+function verificarquestao(resposta) {
+  let feedBack= document.querySelector("#feedback")
+  if(listQuestao[indexQuestao].correct_answer == resposta) {
+    questoesCorretas++;
+    console.log("respostas corretas: ", questoesCorretas);
+    feedBack.textContent = "resposta correta!";
+  } else {
+    feedBack.textContent = "resposta errada!";
+    feedBack.innerHTML += `<br><span>correta: ${listQuestao[indexQuestao].correct_answer}</span>`
+    console.log("resposta errada!");
+    console.log("certo: ", listQuestao[indexQuestao].correct_answer);
+  }
+
+  indexQuestao++;
+}
+
+async function reiniciar() {
+  indexQuestao = 0;
+  questoesCorretas = 0;
+  btnVerificar.disabled = false;
+  btnReiniciar.style.display = "none";  
+  await carregarQuestao();
+}
 
 function recuperandoDadosLocal() {
     const opcoesQuiz = JSON.parse(localStorage.getItem("configQuiz"));
@@ -91,7 +97,7 @@ async function gerarToken() {
 
 }
 
-async function carregarQuestao(op) {
+async function carregarQuestao() {
   console.log("-------------");
   console.log("carregarQuestao:")
 
@@ -120,7 +126,8 @@ function mostrarQuestao(){
   opcaoSelecionada = undefined; 
   if(indexQuestao == 0) {
     console.log('qntdd questao: ', listQuestao.length);
-    respostasTotaisHtml.textContent = listQuestao.length; 
+    respostasTotaisHtml.textContent = listQuestao.length;
+    categoriaHtml.textContent = op.nomeCategoria;
   } else if(indexQuestao != 0){
     document.querySelector('.selected').classList.remove("selected");
   } 
@@ -149,9 +156,8 @@ function mostrarQuestao(){
 }
 
 (async function main() {
-  const op = recuperandoDadosLocal()
+  //const op = recuperandoDadosLocal()
   //const op = {quantidade: 3, dificuldade: 'easy', tipo: 'multiple', categoria: '0'}
   await gerarToken();
-  await carregarQuestao(op)
+  await carregarQuestao()
 })()
-
