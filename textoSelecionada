@@ -1,4 +1,0 @@
-const selectElement = document.getElementById('categoria');// Obtém a opção selecionadan
-const selectedOption = selectElement.options[selectElement.selectedIndex];// Pega o texto da opção selecionada
-const selectedText = selectedOption.text;
-console.log('Texto da opção selecionada:', selectedText);

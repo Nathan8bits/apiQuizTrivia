@@ -42,6 +42,15 @@ body {
     margin-bottom: 10px;
   }
   
+  .botao-container {
+    display: flex; /* Usa flexbox para layout */
+    gap: 10px; /* Espaço entre os botões */
+    /* Opcional: centralizar os botões na página */
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  
   button {
     padding: 10px 20px;
     background-color: #4CAF50;
@@ -50,6 +59,7 @@ body {
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    margin: 10px;
   }
   
   button:hover {

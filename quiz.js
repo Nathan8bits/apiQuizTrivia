@@ -11,6 +11,12 @@ let respostasTotaisHtml = document.querySelector("#respostasTotais");
 let opcoesListaHtml = document.querySelectorAll(".opcao");
 let btnVerificar = document.querySelector("#btnVerificar");
 const btnReiniciar = document.querySelector("#btnReiniciar");
+const btnNovoQuiz = document.querySelector("#btnNovoQuiz");
+
+btnNovoQuiz.addEventListener("click", () => {
+  console.log("btn NOvo Quiz")
+  //window.location.href = "./intro.html";
+})
 
 btnReiniciar.addEventListener("click", () => { reiniciar()});
 
@@ -24,6 +30,9 @@ btnVerificar.addEventListener("click", () => {
       btnVerificar.disabled = true;
       btnReiniciar.disabled = false;
       btnReiniciar.style.display = "block";
+
+      btnNovoQuiz.disabled = false;
+      btnNovoQuiz.style.display = "block";
       //reiniciar();
     } else {
       setTimeout(() => {
@@ -56,6 +65,7 @@ function verificarquestao(resposta) {
   let feedBack= document.querySelector("#feedback")
   if(listQuestao[indexQuestao].correct_answer == resposta) {
     questoesCorretas++;
+    respostasCorretasHtml.textContent = questoesCorretas;
     console.log("respostas corretas: ", questoesCorretas);
     feedBack.textContent = "resposta correta!";
   } else {
@@ -71,8 +81,10 @@ function verificarquestao(resposta) {
 async function reiniciar() {
   indexQuestao = 0;
   questoesCorretas = 0;
+  
   btnVerificar.disabled = false;
-  btnReiniciar.style.display = "none";  
+  btnReiniciar.style.display = "none"; 
+
   await carregarQuestao();
 }
 
@@ -133,7 +145,6 @@ function mostrarQuestao(){
   } 
   
   if(indexQuestao < listQuestao.length ) {
-    respostasCorretasHtml.textContent = questoesCorretas;
     console.log(`index da questao: ${indexQuestao}`)
     let pergunta = document.querySelector("#pergunta");
     pergunta.textContent = listQuestao[indexQuestao].question;
