@@ -1,0 +1,381 @@
+intro.html ```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="intro.css">
+    <script src="./intro.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <form action="#" method="POST">
+      <label for="quantidade">Quantas perguntas?</label>
+      <input value="1" type="number" id="quantidade" name="quantidade" min="1" required><br><br>
+  
+      <label for="dificuldade">Dificuldade:</label>
+      <select id="dificuldade" name="dificuldade">
+        <option value="easy">Fácil</option>
+        <option value="medium">Médio</option>
+        <option value="hard">Difícil</option>
+      </select><br><br>
+  
+      <label for="tipo">Tipo de resposta:</label>
+      <select id="tipo" name="tipo">
+        <option value="multiple">Múltipla Escolha</option>
+        <option value="boolean">Verdadeiro ou Falso</option>
+      </select><br><br>
+  
+      <label for="categoria">Categoria:</label>
+      <select id="categoria" name="categoria" value="0">
+        <!--
+        
+        <option value="0">Any Category</option>
+        <option value="anime_manga">Entertainment: Japanese Anime & Manga</option>
+        <option value="cartoons">Entertainment: Cartoon & Animations</option>
+        <option value="gadgets">Science: Gadgets</option>
+        <option value="geography">Geography</option>
+        <option value="history">History</option>
+        <option value="politics">Politics</option>
+        <option value="celebrities">Celebrities</option>
+        <option value="computers">Science: Computers</option>
+        <option value="science_nature">Science & Nature</option>
+        <option value="television">Entertainment: Television</option>
+        <option value="musicals_theatres">Entertainment: Musicals & Theatres</option>
+        <option value="video_games">Entertainment: Video Games</option>
+        <option value="music">Entertainment: Music</option>
+        <option value="film">Entertainment: Film</option>
+        <option value="books">Entertainment: Books</option>
+        <option value="general_knowledge">General Knowledge</option>
+        -->
+      </select><br><br>
+  
+      <button type="submit">Enviar</button>
+    </form>
+  </body>
+  
+</html>
+```
+
+intro.js ```
+console.log("intro.js")
+
+let opcoesQuiz;
+
+let urlCategoria = "https://tryvia.ptr.red/api_category.php";
+let categoriaData;
+let selectHtml;
+
+
+async function carregarCategorias() {
+
+  console.log('url: ', urlCategoria)  
+  categoriaData = await fetch(urlCategoria)
+                          .then((response) => response.json())
+                          .then((jsonBody) => jsonBody.trivia_categories);
+
+  console.log(categoriaData)
+
+  categoriaData.forEach((element) => {
+    console.log(`categ: ${element.id} - ${element.name}`)
+    let optionHtml = document.createElement('option');
+    console.log(`select: ${selectHtml}`)
+    optionHtml.value = element.id;
+    optionHtml.textContent = element.name;
+    selectHtml.appendChild(optionHtml);
+  });
+
+  console.log(categoriaData);
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const formulario = document.querySelector("form");
+    selectHtml = document.querySelector("#categoria");
+  
+    carregarCategorias();
+
+    formulario.addEventListener("submit", (event) => {
+      event.preventDefault(); // Impede o envio padrão
+  
+      // Coleta os valores dos campos
+      const quantidade = document.getElementById("quantidade").value;
+      const dificuldade = document.getElementById("dificuldade").value;
+      const tipo = document.getElementById("tipo").value;
+      const categoria = document.getElementById("categoria").value;
+      const selectElement = document.getElementById('categoria');// Obtém a opção selecionadan
+      const selectedOption = selectElement.options[selectElement.selectedIndex];// Pega o texto da opção selecionada
+      const nomeCategoria = selectedOption.text;
+      console.log('Texto da opção selecionada:', nomeCategoria);
+
+      console.log("Quantas perguntas:", quantidade);
+      console.log("Dificuldade:", dificuldade);
+      console.log("Tipo de resposta:", tipo);
+      console.log("Categoria:", categoria);
+  
+      opcoesQuiz = {
+        quantidade: parseInt(quantidade),
+        dificuldade,
+        tipo,
+        categoria,
+        nomeCategoria,
+      };
+  
+      console.log("Dados prontos para envio:", opcoesQuiz);
+
+      localStorage.setItem("configQuiz", JSON.stringify(opcoesQuiz));
+
+      window.location.href = "./quiz.html";
+    });
+  });
+```
+
+quiz.html ```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./quiz.css">
+    <script src="./quiz.js" defer></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <form id="formularioPergunta">
+        <h1>Quiz</h1>
+        <p id="placar">
+            <span id="respostasCorretas">0</span>
+            /
+            <span id="respostasTotais">10</span>
+        </p>
+        <p id="categoria"></p>
+        <p id="dificuldade">facil</p>
+        <p id="pergunta">Qual é o resultado de 3 x 4?</p>
+  
+        <ol class="opcoes">
+            <li class="opcao"> <span>opcao 1</span></li>
+            <li class="opcao"> <span>opcao 2</span></li>
+            <li class="opcao"> <span>opcao 3</span></li>
+            <li class="opcao"> <span>opcao 4</span></li> 
+        </ol>
+        
+        <div class="botao-container">
+            
+        </div>
+        <button id="btnVerificar" type="button">Verificar</button>
+        <button id="btnReiniciar" style=" display: none;">Reiniciar Quiz</button>
+        <br>
+        <button id="btnNovoQuiz" style=" display: none;">Criar novo Quiz</button>
+        <p id="feedback"></p>
+  
+    </form>
+</html>
+```
+
+quiz.js ```
+let listQuestao;
+let indexQuestao = 0;
+let questoesCorretas = 0;
+let opcaoSelecionada = undefined;
+let tokenData;
+const op = recuperandoDadosLocal();
+
+let categoriaHtml = document.querySelector("#dificuldade");
+let respostasCorretasHtml = document.querySelector("#respostasCorretas");
+let respostasTotaisHtml = document.querySelector("#respostasTotais");
+let opcoesListaHtml = document.querySelectorAll(".opcao");
+let btnVerificar = document.querySelector("#btnVerificar");
+const btnReiniciar = document.querySelector("#btnReiniciar");
+const btnNovoQuiz = document.querySelector("#btnNovoQuiz");
+
+btnNovoQuiz.addEventListener("click", () => {
+  console.log("btn NOvo Quiz")
+  window.location.href = "./index.html";
+})
+
+btnReiniciar.addEventListener("click", async () => { 
+  await reiniciar()
+});
+
+btnVerificar.addEventListener("click", () => {
+  console.log("clicou btnVerificar");
+  console.log(`${indexQuestao}, ${listQuestao.length}`);
+  if (indexQuestao < listQuestao.length && opcaoSelecionada !== undefined) 
+    {
+    verificarquestao(opcaoSelecionada);
+
+    if (indexQuestao >= listQuestao.length) {
+      btnVerificar.disabled = true;
+      btnReiniciar.style.display = "block";
+      btnNovoQuiz.style.display = "block";
+      document.querySelector("#feedback").style.marginBottom = "20px";
+      
+      // Limpar seleção
+      const selected = document.querySelector('.selected');
+      if(selected) selected.classList.remove('selected');
+    } else {
+      setTimeout(mostrarQuestao(), 1000);
+    }
+  } else if (opcaoSelecionada === undefined) {
+    console.log("selecione uma opcao");
+    document.querySelector("#feedback").textContent = "Selecione uma opção!";
+    document.querySelector("#feedback").style.color = "red";
+  }
+})
+
+opcoesListaHtml.forEach((item, index) => {
+  item.addEventListener("click", () => {
+    if(document.querySelector('.selected') === null) {
+      console.log('nao ha selected') ; 
+      item.classList.add('selected');
+    } else {
+      document.querySelector('.selected').classList.remove('selected');
+      item.classList.add('selected')
+    }
+
+    const texto = item.querySelector("span").textContent.trim(); // Pega o texto dentro do <span>
+    console.log(`Você clicou na opção ${index + 1}: ${texto}`);
+    opcaoSelecionada = texto;
+  });
+});
+
+
+function verificarquestao(resposta) {
+  let feedBack= document.querySelector("#feedback")
+  if(listQuestao[indexQuestao].correct_answer == resposta) {
+    questoesCorretas++;
+    respostasCorretasHtml.textContent = questoesCorretas;
+    console.log("respostas corretas: ", questoesCorretas);
+    feedBack.textContent = "resposta correta!";
+  } else {
+    feedBack.textContent = "resposta errada!";
+    feedBack.innerHTML += `<br><span>correta: ${listQuestao[indexQuestao].correct_answer}</span>`
+    console.log("resposta errada!");
+    console.log("certo: ", listQuestao[indexQuestao].correct_answer);
+  }
+  indexQuestao++;
+}
+
+async function reiniciar() {
+  indexQuestao = 0;
+  questoesCorretas = 0;
+  
+  btnVerificar.disabled = false;
+  btnReiniciar.style.display = "none"; 
+
+  await carregarQuestao();
+}
+
+function recuperandoDadosLocal() {
+    const opcoesQuiz = JSON.parse(localStorage.getItem("configQuiz"));
+
+    if (opcoesQuiz) {
+      console.log("Objeto recuperado:", opcoesQuiz);
+      // Pode usar os dados normalmente
+    } else {
+      console.log("Nenhum dado encontrado no localStorage.");
+    }
+
+  return opcoesQuiz;
+}
+
+async function gerarToken() {
+  const APITokenComando = `https://tryvia.ptr.red/api_token.php?command=request`;
+  tokenData = await fetch(APITokenComando)
+                              .then((responseToken) => responseToken.json())
+                              .then((jsonBodyToken) => jsonBodyToken.token);
+
+}
+
+async function carregarQuestao() {
+  console.log("-------------");
+  console.log("carregarQuestao:")
+
+  const APIUrl = `https://tryvia.ptr.red/api.php?amount=${op.quantidade}&category=${op.categoria}&type=${op.tipo}&difficulty=${op.dificuldade}&token=${tokenData}`;
+
+  console.log('url: ', APIUrl)
+
+  const urlData = await fetch(APIUrl)
+                          .then((response) => response.json())
+                          .then((jsonBody) => jsonBody.results);
+  
+  listQuestao = urlData;
+  if(listQuestao.length == 0) {
+    console.log("sem resultados");
+    window.location.href = "intro.html";
+    alert("Sem resultados")
+  }
+  console.log("lista de questao: ", listQuestao)
+  mostrarQuestao();  
+}
+
+function mostrarQuestao(){
+  opcaoSelecionada = undefined; 
+  document.querySelector("#feedback").textContent = "";
+  
+  if(indexQuestao === 0) {
+    console.log('qntdd questao: ', listQuestao.length);
+    respostasCorretasHtml.textContent = "0";
+    respostasTotaisHtml.textContent = listQuestao.length;
+    categoriaHtml.textContent = op.nomeCategoria;
+  
+  } else if(document.querySelector('.selected')){
+    document.querySelector('.selected').classList.remove("selected");
+  } 
+  
+  if(indexQuestao < listQuestao.length) {
+    console.log(`index da questao: ${indexQuestao}`)
+    
+    document.querySelector("#pergunta").textContent = listQuestao[indexQuestao].question;
+    document.querySelector("#dificuldade").textContent = listQuestao[indexQuestao].difficulty;
+    
+    let opcoes = listQuestao[indexQuestao].incorrect_answers;
+    opcoes.splice(Math.floor(Math.random() * (opcoes.length + 1)), 0, 
+          listQuestao[indexQuestao].correct_answer);
+    
+    document.querySelectorAll(".opcao > span").forEach((item, index) => {
+      item.textContent = opcoes[index];
+    });
+    
+    console.log("pergunta: ", listQuestao[indexQuestao].question);
+    console.log("categoria:", listQuestao[indexQuestao].category);
+    console.log("dificuldade:", listQuestao[indexQuestao].difficulty)
+    console.log("Correta:", listQuestao[indexQuestao].correct_answer);
+    console.log("opcoes:", listQuestao[indexQuestao].incorrect_answers);
+  }
+    //indexQuestao++;
+}
+
+(async function main() {
+  //const op = recuperandoDadosLocal()
+  //const op = {quantidade: 3, dificuldade: 'easy', tipo: 'multiple', categoria: '0'}
+  await gerarToken();
+  await carregarQuestao()
+})()
+
+```
+
+
+async function carregarQuestao() {
+  console.log("-------------");
+  console.log("carregarQuestao:")
+
+  const APIUrl = `https://tryvia.ptr.red/api.php?amount=${op.quantidade}&category=${op.categoria}&type=${op.tipo}&difficulty=${op.dificuldade}&token=${tokenData}`;
+
+  console.log('url: ', APIUrl)
+
+  const urlData = await fetch(APIUrl)
+                          .then((response) => response.json())
+                          .then((jsonBody) => jsonBody.results);
+  
+  listQuestao = urlData;
+  if(listQuestao.length == 0) {
+    console.log("sem resultados");
+    window.location.href = "intro.html";
+    alert("Sem resultados")
+  }
+  console.log("lista de questao: ", listQuestao)
+  mostrarQuestao();  
+}

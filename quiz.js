@@ -15,7 +15,7 @@ const btnNovoQuiz = document.querySelector("#btnNovoQuiz");
 
 btnNovoQuiz.addEventListener("click", () => {
   console.log("btn NOvo Quiz")
-  //window.location.href = "./intro.html";
+  window.location.href = "./intro.html";
 })
 
 btnReiniciar.addEventListener("click", () => { reiniciar()});
@@ -23,17 +23,17 @@ btnReiniciar.addEventListener("click", () => { reiniciar()});
 btnVerificar.addEventListener("click", () => {
   console.log("clicou btnVerificar");
   console.log(`${indexQuestao}, ${listQuestao.length}`);
-  if (indexQuestao < listQuestao.length && opcaoSelecionada != undefined) {
+  if (indexQuestao < listQuestao.length && opcaoSelecionada !== undefined) {
     verificarquestao(opcaoSelecionada);
 
-    if (indexQuestao == listQuestao.length) {
+    if (indexQuestao >= listQuestao.length) {
       btnVerificar.disabled = true;
-      btnReiniciar.disabled = false;
       btnReiniciar.style.display = "block";
-
-      btnNovoQuiz.disabled = false;
       btnNovoQuiz.style.display = "block";
-      //reiniciar();
+      document.querySelector("#feedback").style.marginBottom = "20px";
+
+      const selected = document.querySelector('.selected');
+      if(selected) selected.classList.remove('selected');
     } else {
       setTimeout(() => {
         mostrarQuestao();
@@ -41,6 +41,8 @@ btnVerificar.addEventListener("click", () => {
     }
   } else if (opcaoSelecionada == undefined) {
     console.log("selecione uma opcao");
+    document.querySelector('#feedback').textContent = "selecione uma opção!";
+    document.querySelector("#feedback").style.color = "red";
   }
 })
 
@@ -79,12 +81,19 @@ function verificarquestao(resposta) {
 }
 
 async function reiniciar() {
+  console.log("Reiniciando quiz...");
+  
   indexQuestao = 0;
   questoesCorretas = 0;
+  opcaoSelecionada = undefined;
   
-  btnVerificar.disabled = false;
-  btnReiniciar.style.display = "none"; 
-
+  respostasCorretasHtml.textContent = "0";
+  document.querySelector("#feedback").textContent = "";
+  
+  btnReiniciar.style.display = "none";
+  btnNovoQuiz.style.display = "none";
+  //btnVerificar.disabled = false;
+  
   await carregarQuestao();
 }
 
@@ -114,8 +123,6 @@ async function carregarQuestao() {
   console.log("carregarQuestao:")
 
   
-
-
   const APIUrl = `https://tryvia.ptr.red/api.php?amount=${op.quantidade}&category=${op.categoria}&type=${op.tipo}&difficulty=${op.dificuldade}&token=${tokenData}`;
 
   console.log('url: ', APIUrl)
@@ -135,35 +142,30 @@ async function carregarQuestao() {
 }
 
 function mostrarQuestao(){
-  opcaoSelecionada = undefined; 
-  if(indexQuestao == 0) {
-    console.log('qntdd questao: ', listQuestao.length);
+  opcaoSelecionada = undefined;
+  document.querySelector("#feedback").textContent = "";
+  
+  if(indexQuestao === 0) {
+    respostasCorretasHtml.textContent = "0";
     respostasTotaisHtml.textContent = listQuestao.length;
     categoriaHtml.textContent = op.nomeCategoria;
-  } else if(indexQuestao != 0){
+    document.querySelector("#categoria").textContent = listQuestao[indexQuestao].category;
+  } else if(document.querySelector('.selected')) {
     document.querySelector('.selected').classList.remove("selected");
-  } 
+  }
   
-  if(indexQuestao < listQuestao.length ) {
-    console.log(`index da questao: ${indexQuestao}`)
-    let pergunta = document.querySelector("#pergunta");
-    pergunta.textContent = listQuestao[indexQuestao].question;
-
-    let opcoes = listQuestao[indexQuestao].incorrect_answers;
-    opcoes.splice(Math.floor(Math.random() * opcoes.length), 0, listQuestao[indexQuestao].correct_answer);
+  if(indexQuestao < listQuestao.length) {
+    document.querySelector("#pergunta").textContent = listQuestao[indexQuestao].question;
+    document.querySelector("#dificuldade").textContent = listQuestao[indexQuestao].difficulty;
     
-    const textoLi = document.querySelectorAll(".opcao > span")
-    textoLi.forEach((item, index) => {
+    let opcoes = [...listQuestao[indexQuestao].incorrect_answers];
+    opcoes.splice(Math.floor(Math.random() * (opcoes.length + 1)), 0, 
+                 listQuestao[indexQuestao].correct_answer);
+    
+    document.querySelectorAll(".opcao span").forEach((item, index) => {
       item.textContent = opcoes[index];
     });
-    
-    console.log("pergunta: ", listQuestao[indexQuestao].question);
-    console.log("categoria:", listQuestao[indexQuestao].category);
-    console.log("dificuldade:", listQuestao[indexQuestao].difficulty)
-    console.log("Correta:", listQuestao[indexQuestao].correct_answer);
-    console.log("opcoes:", listQuestao[indexQuestao].incorrect_answers);
   }
-    //indexQuestao++;
 }
 
 (async function main() {
@@ -171,4 +173,4 @@ function mostrarQuestao(){
   //const op = {quantidade: 3, dificuldade: 'easy', tipo: 'multiple', categoria: '0'}
   await gerarToken();
   await carregarQuestao()
-})()
+})();

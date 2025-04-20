@@ -8,10 +8,7 @@ let selectHtml;
 
 
 async function carregarCategorias() {
-/**
- * <select id="categoria" name="categoria">
-        <option value="0">Any Category</option>
- */
+
   console.log('url: ', urlCategoria)  
   categoriaData = await fetch(urlCategoria)
                           .then((response) => response.json())
@@ -47,23 +44,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const dificuldade = document.getElementById("dificuldade").value;
       const tipo = document.getElementById("tipo").value;
       const categoria = document.getElementById("categoria").value;
-      
-
       const selectElement = document.getElementById('categoria');// Obtém a opção selecionadan
       const selectedOption = selectElement.options[selectElement.selectedIndex];// Pega o texto da opção selecionada
-      const selectedText = selectedOption.text;
-      console.log('Texto da opção selecionada:', selectedText);
+      const nomeCategoria = selectedOption.text;
+      console.log('Texto da opção selecionada:', nomeCategoria);
 
-      const nomeCategoria = selectedText;
-  
-      // Exibe os dados no console (ou use para montar uma requisição)
       console.log("Quantas perguntas:", quantidade);
       console.log("Dificuldade:", dificuldade);
       console.log("Tipo de resposta:", tipo);
       console.log("Categoria:", categoria);
   
-      // Aqui você pode enviar os dados para uma API, ou usar para outra lógica
-      // Exemplo fictício:
       opcoesQuiz = {
         quantidade: parseInt(quantidade),
         dificuldade,
@@ -72,13 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
         nomeCategoria,
       };
   
-      // Você pode substituir esse log por uma chamada fetch ou outro processamento
       console.log("Dados prontos para envio:", opcoesQuiz);
 
       localStorage.setItem("configQuiz", JSON.stringify(opcoesQuiz));
 
-      window.location.href = "quiz.html";
+      window.location.href = "./quiz.html";
     });
   });
-  
-
